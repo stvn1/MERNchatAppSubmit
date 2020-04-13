@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 const chatHistory = new Schema(
   {
-    message: {
+    content: {
       type: String,
     },
-    sender: {
+    name: {
       type: String,
     },
     roomname: {
@@ -18,5 +18,6 @@ const chatHistory = new Schema(
   }
 );
 
-let chatHistory = mongoose.model("chat", chatHistory);
-module.exports = chatHistory;
+// let chatHistory = mongoose.model("chat", chatHistory);
+// module.exports = mongoose.model('Message', messageSchema);
+module.exports = mongoose.model("chatHistory", chatHistory);

@@ -8,6 +8,7 @@ import Users from "../../components/Users/users";
 import InfoBar from "../../components/InfoBar/InforBar";
 import Messages from "../../components/Messages/Messages";
 import Input from "../../components/Input/Input";
+import RoomBar from "../../components/RoomBar/RoomBar";
 
 let socket;
 
@@ -38,6 +39,16 @@ const Chat = ({ location }) => {
   }, [ENDPOINT, location.search]);
 
   useEffect(() => {
+    socket.on("init", (msg) => {
+      // console.log(msg[0].content);
+      console.log(msg);
+      // var result = Object.keys(msg).map(function (key) {
+      //   return [Number(key), msg[key]];
+      // });
+      // console.log(result);
+      // setMessages([...messages, ...msg.reverse()]);
+      setMessages([...messages, msg]);
+    });
     socket.on("message", (message) => {
       setMessages([...messages, message]);
     });
@@ -65,6 +76,7 @@ const Chat = ({ location }) => {
     <div>
       <h1>Chat page</h1>
       <div className="outerContainer">
+        <RoomBar room={room} />
         <div className="container">
           <InfoBar room={room} />
           <Messages messages={messages} name={name} />
