@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./App.css";
 
 //Pages
-import Chat from "./pages/chat";
-import Home from "./pages/home";
-import Login from "./pages/login";
+import Chat from "./pages/chat/chat";
+import Home from "./pages/home/home";
+import Login from "./pages/login/login";
 
 function App() {
   return (
