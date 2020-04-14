@@ -39,15 +39,17 @@ const Chat = ({ location }) => {
   }, [ENDPOINT, location.search]);
 
   useEffect(() => {
-    socket.on("init", (msg) => {
+    socket.on("init", (msgs) => {
+      console.log(msgs);
+      console.log(Array.isArray(msgs));
       // console.log(msg[0].content);
-      console.log(msg);
       // var result = Object.keys(msg).map(function (key) {
       //   return [Number(key), msg[key]];
       // });
       // console.log(result);
       // setMessages([...messages, ...msg.reverse()]);
-      setMessages([...messages, msg]);
+      setMessages([...messages, ...msgs]);
+      console.log(messages);
     });
     socket.on("message", (message) => {
       setMessages([...messages, message]);

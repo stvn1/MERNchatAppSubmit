@@ -61,8 +61,8 @@ io.on("connect", (socket) => {
       .where({ roomname: room })
       .exec((err, messages) => {
         // console.log(messages[0].content);
-        console.log(messages);
         if (err) return console.error(err);
+        console.log(messages);
 
         // Send the last messages to the user.
 
@@ -74,15 +74,21 @@ io.on("connect", (socket) => {
         //     text: msgSend,
         //   });
         // }
-        for (i = messages.length - 1; i >= 0; ) {
-          let userSend = messages[i].name;
-          let msgSend = messages[i].content;
-          socket.emit("init", {
-            user: userSend,
-            text: msgSend,
-          });
-          i--;
-        }
+        // var result = Object.keys(msg).map(function (key) {
+        //   return [Number(key), msg[key]];
+        // });
+        // console.log(result);
+
+        // for (i = messages.length - 1; i >= 0; ) {
+        //   let userSend = messages[i].name;
+        //   let msgSend = messages[i].content;
+        //   socket.emit("init", {
+        //     user: userSend,
+        //     text: msgSend,
+        //   });
+        //   i--;
+        // }
+        socket.emit("init", messages);
         // socket.emit("init", messages);
       });
 
