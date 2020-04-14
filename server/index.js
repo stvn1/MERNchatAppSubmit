@@ -12,7 +12,7 @@ const { addUser, removeUser, getUser, getUsersInRoom } = require("./users");
 
 //Models
 const chatHistory = require("./models/chatHistory");
-const room = require("./models/room");
+const chatRooms = require("./models/room");
 const events = require("./models/events");
 
 const port = process.env.PORT || 5000;
@@ -34,6 +34,7 @@ io.on("connect", (socket) => {
     if (error) return callback(error);
 
     socket.join(user.room);
+    //Record user joined Event
     const event = new events({
       event: `${user.name} has joined!`,
     });
@@ -42,6 +43,17 @@ io.on("connect", (socket) => {
     event.save((err) => {
       if (err) return console.error(err);
     });
+
+    //Chat rooms available
+    chatRooms.find().exec((err, rooms) => {
+      console.log(rooms);
+      if (err) return console.err(err);
+
+      // socket.emit("roomname", {
+      //   room: rooms,
+      // });
+    });
+
     chatHistory
       .find()
       .sort({ createdAt: -1 })

@@ -34,19 +34,17 @@ const RoomBar = ({ room }) => {
               </div>
             ))} */}
           </Button>
-          {/* <Button
+          <Button
             style={{
               borderRadius: 35,
               backgroundColor: "#21b6ae",
               padding: "18px 36px",
               fontSize: "18px",
             }}
-            onClick={() => {
-              setRoom(anotherChat);
-            }}
+            onClick={() => {}}
           >
             @anotherChat
-          </Button> */}
+          </Button>
         </Grid>
       </Grid>
     </div>
