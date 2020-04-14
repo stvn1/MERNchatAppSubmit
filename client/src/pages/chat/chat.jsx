@@ -48,14 +48,15 @@ const Chat = ({ location }) => {
       // });
       // console.log(result);
       // setMessages([...messages, ...msg.reverse()]);
-      setMessages([...messages, ...msgs]);
+      setMessages([...messages, ...msgs.reverse()]);
       console.log(messages);
     });
     socket.on("message", (message) => {
       setMessages([...messages, message]);
     });
     socket.on("roomname", ({ roomname }) => {
-      setRoom(roomname);
+      // setRoom(roomname);
+      console.log("these are the rooms", roomname);
     });
 
     socket.on("roomData", ({ users }) => {

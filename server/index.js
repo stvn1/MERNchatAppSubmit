@@ -4,6 +4,36 @@ const server = require("http").createServer(app);
 const dotenv = require("dotenv");
 const io = require("socket.io").listen(server);
 const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const passport = require("passport");
+const users = require("./routes/api/users");
+const app2 = express();
+const mongoose2 = require("mongoose");
+
+//bodyParser middleware
+app2.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
+app2.use(bodyParser.json());
+const db = require("./config/keys").mongoURI;
+// Connect to MongoDB
+mongoose2
+  .connect(db, { useNewUrlParser: true })
+  .then(() => console.log("MongoDB successfully connected"))
+
+  .catch((err) => console.log(err));
+app2.use(passport.initialize());
+
+// Passport config
+require("./config/passport")(passport);
+// Routes
+app2.use("/api/users", users);
+const port2 = process.env.PORT || 4000; // process.env.port is Heroku's port if you choose to deploy the app there
+app2.listen(port2, () =>
+  console.log(`Server up and running on port ${port2} !`)
+);
 
 //Routes
 
@@ -49,9 +79,7 @@ io.on("connect", (socket) => {
       console.log(rooms);
       if (err) return console.err(err);
 
-      // socket.emit("roomname", {
-      //   room: rooms,
-      // });
+      socket.emit("roomname", rooms);
     });
 
     chatHistory
@@ -94,11 +122,11 @@ io.on("connect", (socket) => {
 
     socket.emit("message", {
       user: "admin",
-      text: `${user.name}, welcome to room ${user.room}.`,
+      content: `${user.name}, welcome to room ${user.room}.`,
     });
     socket.broadcast
       .to(user.room)
-      .emit("message", { user: "admin", text: `${user.name} has joined!` });
+      .emit("message", { user: "admin", content: `${user.name} has joined!` });
 
     io.to(user.room).emit("roomData", {
       room: user.room,
@@ -122,7 +150,7 @@ io.on("connect", (socket) => {
     msg.save((err) => {
       if (err) return console.error(err);
     });
-    io.to(user.room).emit("message", { user: user.name, text: message });
+    io.to(user.room).emit("message", { user: user.name, content: message });
 
     callback();
   });
@@ -133,7 +161,7 @@ io.on("connect", (socket) => {
     if (user) {
       io.to(user.room).emit("message", {
         user: "Admin",
-        text: `${user.name} has left.`,
+        content: `${user.name} has left.`,
       });
       const event = new events({
         event: `${user.name} has left.`,
