@@ -13,7 +13,7 @@ const { addUser, removeUser, getUser, getUsersInRoom } = require("./users");
 //Models
 const chatHistory = require("./models/chatHistory");
 const room = require("./models/room");
-const Message = require("./models/Message");
+const events = require("./models/events");
 
 const port = process.env.PORT || 5000;
 
@@ -29,31 +29,49 @@ mongoose.connect(uri, {
 io.on("connect", (socket) => {
   socket.on("join", ({ name, room }, callback) => {
     console.log(name, room);
+
     const { error, user } = addUser({ id: socket.id, name, room });
     if (error) return callback(error);
 
     socket.join(user.room);
+    const event = new events({
+      event: `${user.name} has joined!`,
+    });
+
+    // Save the event to the database.
+    event.save((err) => {
+      if (err) return console.error(err);
+    });
     chatHistory
       .find()
       .sort({ createdAt: -1 })
       .limit(10)
+      .where({ roomname: room })
       .exec((err, messages) => {
         // console.log(messages[0].content);
         console.log(messages);
         if (err) return console.error(err);
 
         // Send the last messages to the user.
-        for (let i = 0; i < messages.length; i++) {
+
+        // for (const property in messages) {
+        //   let userSend = messages[property].name;
+        //   let msgSend = messages[property].content;
+        //   socket.emit("init", {
+        //     user: userSend,
+        //     text: msgSend,
+        //   });
+        // }
+        for (i = messages.length - 1; i >= 0; ) {
           let userSend = messages[i].name;
           let msgSend = messages[i].content;
           socket.emit("init", {
             user: userSend,
             text: msgSend,
           });
+          i--;
         }
         // socket.emit("init", messages);
-
-        //socket.emit("init", messages);
       });
 
     socket.emit("message", {
@@ -79,6 +97,7 @@ io.on("connect", (socket) => {
     const msg = new chatHistory({
       content: message,
       name: user.name,
+      roomname: user.room,
     });
 
     // Save the message to the database.
@@ -97,6 +116,14 @@ io.on("connect", (socket) => {
       io.to(user.room).emit("message", {
         user: "Admin",
         text: `${user.name} has left.`,
+      });
+      const event = new events({
+        event: `${user.name} has left.`,
+      });
+
+      // Save the event to the database.
+      event.save((err) => {
+        if (err) return console.error(err);
       });
       io.to(user.room).emit("roomData", {
         room: user.room,
