@@ -7,6 +7,8 @@ import Chat from "./pages/chat/chat";
 import Home from "./pages/home/home";
 import Login from "./pages/login/login";
 
+import Admin from "./pages/AdminTest";
+
 function App() {
   return (
     <div className="App">
@@ -16,6 +18,7 @@ function App() {
           <Route exact path="/home" component={Home} />
           <Route exact path="/chat" component={Chat} />
           <Route exact path="/login" component={Login} />
+          {/* <Route exact path="/admin" component={Admin} /> */}
         </Switch>
       </Router>
     </div>

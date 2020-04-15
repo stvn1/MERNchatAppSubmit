@@ -16,7 +16,7 @@ router.route("/").get((req, res) => {
   });
 });
 
-// Delete Student
+// Delete event
 router.route("/delete-event/:id").delete((req, res, next) => {
   eventSchema.findByIdAndRemove(req.params.id, (error, data) => {
     if (error) {

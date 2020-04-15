@@ -50,7 +50,7 @@ app3.use("/rooms", roomssRoute);
 app3.use("/chat", chatRoute);
 
 // PORT
-const port3 = process.env.PORT || 4001;
+const port3 = process.env.PORT || 3001;
 const server3 = app3.listen(port3, () => {
   console.log("Connected to port " + port3);
 });

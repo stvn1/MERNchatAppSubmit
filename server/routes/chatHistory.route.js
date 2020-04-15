@@ -16,7 +16,7 @@ router.route("/").get((req, res) => {
   });
 });
 
-// Delete Student
+// Delete chat
 router.route("/delete-chat/:id").delete((req, res, next) => {
   chatSchema.findByIdAndRemove(req.params.id, (error, data) => {
     if (error) {
