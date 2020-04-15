@@ -7,22 +7,52 @@ import "./roomBar.css";
 
 const useStyles = () => ({
   button: {
-    color: "white",
     marginLeft: "5%",
     width: "60%",
   },
 });
 
 const RoomBar = ({ rooms }) => (
-  <div>
-    {/* <h2>
-      {rooms.map(({ rooms }) => (
-        <div key={rooms} className="activeItem">
-          {rooms}
+  <div className="rooms">
+    {rooms ? (
+      <div>
+        <h1>Chats available:</h1>
+        <div className="activeContainer">
+          <h2>
+            {rooms.map(({ name }) => (
+              <button key={name}>@{name}</button>
+            ))}
+          </h2>
         </div>
-      ))}
-    </h2> */}
+      </div>
+    ) : null}
   </div>
+  //   <div>
+
+  //     {/* {rooms.map(({ name }, i) => {
+  //       // const actualMessage = { user: name, text: content };
+  //       return (
+  //         <div key={name}>
+  //           <h2>{name}</h2>
+  //         </div>
+  //       );
+  //     })}
+
+  // {users.map(({ name }) => (
+  //               <div key={name} className="activeItem">
+  //                 {name}
+  //                 <img alt="Online Icon" src={onlineIcon} />
+  //               </div>
+  //             ))} */}
+
+  //     {/* <h2>
+  //       {rooms.map(({ rooms }) => (
+  //         <div key={rooms} className="activeItem">
+  //           {rooms}
+  //         </div>
+  //       ))}
+  //     </h2> */}
+  //   </div>
 );
 
 // const RoomBar = ({ room }) => {

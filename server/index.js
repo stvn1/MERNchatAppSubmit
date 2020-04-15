@@ -7,8 +7,66 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const users = require("./routes/api/users");
+const cors = require("cors");
 const app2 = express();
 const mongoose2 = require("mongoose");
+const app3 = express();
+const mongoose3 = require("mongoose");
+
+// mongoDB connection
+dotenv.config();
+const uri = process.env.MONGODB_URI;
+
+//+++++++++++++ADMIN STUFF +++++++++++++++++++++++++++++++
+
+// Express Routes
+const chatRoute = require("../server/routes/chatHistory.route");
+const eventssRoute = require("../server/routes/events.route");
+const roomssRoute = require("../server/routes/room.route");
+
+mongoose3.Promise = global.Promise;
+mongoose3
+  .connect(uri, {
+    useNewUrlParser: true,
+  })
+  .then(
+    () => {
+      console.log("Database sucessfully connected!");
+    },
+    (error) => {
+      console.log("Could not connect to database : " + error);
+    }
+  );
+
+app3.use(bodyParser.json());
+app3.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+app3.use(cors());
+app3.use("/events", eventssRoute);
+app3.use("/rooms", roomssRoute);
+app3.use("/chat", chatRoute);
+
+// PORT
+const port3 = process.env.PORT || 4001;
+const server3 = app3.listen(port3, () => {
+  console.log("Connected to port " + port3);
+});
+
+// 404 Error
+app3.use((req, res, next) => {
+  next(createError(404));
+});
+
+app3.use(function (err, req, res, next) {
+  console.error(err.message);
+  if (!err.statusCode) err.statusCode = 500;
+  res.status(err.statusCode).send(err.message);
+});
+
+//+++++++++++++++++++++++AUTH+++++++++++++++++++++++++++
 
 //bodyParser middleware
 app2.use(
@@ -35,7 +93,7 @@ app2.listen(port2, () =>
   console.log(`Server up and running on port ${port2} !`)
 );
 
-//Routes
+//++++++++++++++++++++SOCKET.IO STUFF ++++++++++++++++++++++++++++
 
 //Get users online
 const { addUser, removeUser, getUser, getUsersInRoom } = require("./users");
@@ -47,10 +105,6 @@ const events = require("./models/events");
 
 const port = process.env.PORT || 5000;
 
-// mongoDB connection
-dotenv.config();
-const uri = process.env.MONGODB_URI;
-
 mongoose.connect(uri, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
@@ -58,30 +112,6 @@ mongoose.connect(uri, {
 
 io.on("connect", (socket) => {
   socket.on("join", ({ name, room }, callback) => {
-    console.log(name, room);
-
-    const { error, user } = addUser({ id: socket.id, name, room });
-    if (error) return callback(error);
-
-    socket.join(user.room);
-    //Record user joined Event
-    const event = new events({
-      event: `${user.name} has joined!`,
-    });
-
-    // Save the event to the database.
-    event.save((err) => {
-      if (err) return console.error(err);
-    });
-
-    //Chat rooms available
-    chatRooms.find().exec((err, rooms) => {
-      console.log(rooms);
-      if (err) return console.err(err);
-
-      socket.emit("roomname", rooms);
-    });
-
     chatHistory
       .find()
       .sort({ createdAt: -1 })
@@ -90,7 +120,7 @@ io.on("connect", (socket) => {
       .exec((err, messages) => {
         // console.log(messages[0].content);
         if (err) return console.error(err);
-        console.log(messages);
+        // console.log(messages);
 
         // Send the last messages to the user.
 
@@ -119,6 +149,30 @@ io.on("connect", (socket) => {
         socket.emit("init", messages);
         // socket.emit("init", messages);
       });
+
+    // console.log(name, room);
+
+    const { error, user } = addUser({ id: socket.id, name, room });
+    if (error) return callback(error);
+
+    socket.join(user.room);
+    //Record user joined Event
+    const event = new events({
+      event: `${user.name} has joined!`,
+    });
+
+    // Save the event to the database.
+    event.save((err) => {
+      if (err) return console.error(err);
+    });
+
+    //Chat rooms available
+    chatRooms.find().exec((err, rooms) => {
+      console.log(rooms);
+      if (err) return console.err(err);
+
+      socket.emit("loadRooms", rooms);
+    });
 
     socket.emit("message", {
       user: "admin",
